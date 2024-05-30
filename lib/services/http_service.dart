@@ -54,7 +54,7 @@ class Network {
 
   static Map<String, String> paramsApiKey() {
     Map<String, String> params = {};
-    params.addAll({'key': "AIzaSyBPiSZhzT816_Bn3umkrzxnKo4ohjTFD-w"});
+    params.addAll({'key': "AIzaSyCyAc_8dNlLdb104HXm8kwyEY0F6mCSFms"});
     return params;
   }
 
