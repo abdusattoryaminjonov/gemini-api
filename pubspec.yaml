@@ -13,11 +13,32 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.6
+
+  page_transition: ^2.1.0
+  lottie: ^2.7.0
+
+  # network
   http: ^0.13.3
   http_interceptor: ^1.0.2
+  dartz: ^0.10.1
   logger: ^1.1.0
-  image_picker: ^1.0.7
+
+  # db
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.2
+
+  # file
+  image_picker: ^1.1.1
   video_player: ^2.8.6
+
+  # speech
+  speech_to_text: ^6.6.1
+  flutter_tts: ^4.0.2
+
+  # getX
+  get: ^4.6.6
+
 
 dev_dependencies:
   flutter_test:
@@ -32,6 +53,7 @@ flutter:
   assets:
     - assets/images/
     - assets/videos/
+    - assets/lotties/
 
   # example:
   # fonts:

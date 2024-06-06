@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gemini_https/presentation/controllers/starter_controller.dart';
+import 'package:get/get.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:video_player/video_player.dart';
 
 import 'home_page.dart';
@@ -11,25 +14,18 @@ class StarterPage extends StatefulWidget {
 }
 
 class _StarterPageState extends State<StarterPage> {
-  late VideoPlayerController videoPlayerController;
+
+  final starterController = Get.find<StarterController>();
 
   @override
   void initState() {
     super.initState();
-    videoPlayerController =
-    VideoPlayerController.asset("assets/videos/gemini_video.mp4")
-      ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-        setState(() {});
-      });
-
-    videoPlayerController.play();
-    videoPlayerController.setLooping(true);
+    starterController.initVideoPlayer();
   }
 
   @override
   void dispose() {
-    videoPlayerController.dispose();
+    starterController.videoPlayerController.dispose();
     super.dispose();
   }
 
@@ -39,51 +35,56 @@ class _StarterPageState extends State<StarterPage> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 40),
+          padding: const EdgeInsets.symmetric(vertical: 40),
           child: Column(
             children: [
               Container(
-                child: Image(
+                child: const Image(
                   width: 150,
                   image: AssetImage('assets/images/gemini_logo.png'),
                   fit: BoxFit.cover,
                 ),
               ),
               Expanded(
-                child: videoPlayerController.value.isInitialized
-                    ? VideoPlayer(videoPlayerController)
+                child: starterController.videoPlayerController.value.isInitialized
+                    ? VideoPlayer(starterController.videoPlayerController)
                     : Container(),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      border: Border.all(
-                        width: 1.5,
-                        color: const Color.fromRGBO(255, 255, 255, 1.0),
+                  GestureDetector(
+                    onTap: () {
+                      // Navigator.pushReplacementNamed(context, HomePage.id);
+                      Navigator.push(context, PageTransition(
+                        type: PageTransitionType.fade,
+                          child: HomePage())
+                      );
+                    },
+                    child: Container(
+                      padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 2),
+                        borderRadius: BorderRadius.circular(25),
                       ),
-                    ),
-                    child: MaterialButton(
-                      onPressed: (){
-                        Navigator.pushReplacementNamed(context, HomePage.id);
-                      },
                       child: Row(
-
-                          children: [
-                            Text('Chat with Gemini', style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white
-                            ),),
-                            SizedBox(width: 10,),
-                            Icon(Icons.navigate_next_outlined,color: Colors.white,),
-                          ]
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Chat with Gemini ',
+                            style: TextStyle(color: Colors.grey[400], fontSize: 18),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.grey,
+                          )
+                        ],
                       ),
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

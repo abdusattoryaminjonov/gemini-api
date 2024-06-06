@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -21,4 +22,9 @@ class Utils{
     return base64Image;
   }
 
+  static Uint8List base64Decode(String base64){
+    Uint8List image;
+    image = Base64Decoder().convert(base64);
+    return image;
+  }
 }

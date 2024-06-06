@@ -1,15 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:gemini_https/data/datasources/local/nosql_service.dart';
+import 'package:get/get.dart';
 
-import '../../core/services/log_service.dart';
 import '../../core/services/utils_service.dart';
-import '../../data/repositories/gemini_talk_repository_impl.dart';
-import '../../domain/usecases/gemini_text_and_image_usecase.dart';
-import '../../domain/usecases/gemini_text_only_usecase.dart';
+import '../controllers/home_controller.dart';
+import '../widgets/item_gemini_message.dart';
+import '../widgets/item_user_message.dart';
+
 
 class HomePage extends StatefulWidget {
   static const String id = 'home_page';
+
   const HomePage({super.key});
 
   @override
@@ -17,98 +18,163 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  GeminiTextOnlyUseCase textOnlyUseCase =
-  GeminiTextOnlyUseCase(GeminiTalkRepositoryImpl());
-  GeminiTextAndImageUseCase textAndImageUseCase =
-  GeminiTextAndImageUseCase(GeminiTalkRepositoryImpl());
+  final homeController = Get.find<HomeController>();
 
-  apiTextOnly() async {
-    var text = "What is the best way to learn Flutter development?";
-    var result = await textOnlyUseCase.call(text);
-    LogService.d(result);
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    // #todo - load message models from NoSQL
+    homeController.messages = NoSqlService.fetchNoSqlCard();
+
+    homeController.initSTT();
   }
 
-  apiTextAndImage() async {
-    var text = "What is this image?";
-    var base64 = await Utils.pickAndConvertImage();
-
-    var result = await textAndImageUseCase.call(text, base64);
-    LogService.d(result);
+  @override
+  void dispose() {
+    homeController.textController.dispose();
+    homeController.textFieldFocusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        centerTitle: true,
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: Colors.black,
-        title: Image(image: AssetImage('assets/images/gemini_logo.png'),width: 100,),
-      ),
-      body: Container(
-
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Expanded(
-              child: ListView(),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(
-                  width: 1.5,
-                  color: const Color.fromRGBO(255, 255, 255, 1.0),
-                ),
-              ),
-              height: 50,
-              child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children:[
-                  Expanded(
-                      child:TextField(
-                        style: TextStyle(color:Colors.white),
-                        cursorColor: Colors.white,
-                        decoration: InputDecoration(
-                          hintText: 'Message',
-                          hintStyle: TextStyle(color: Colors.white),
-                          border: InputBorder.none,
-                        ),
-                      ),
+        body: GetBuilder<HomeController>(
+          builder: (_){
+            return Container(
+              padding: const EdgeInsets.only(bottom: 20, top: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const SizedBox(
+                    height: 45,
+                    child: Image(
+                      image: AssetImage('assets/images/gemini_logo.png'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-
-                  Row(
-                    children: [
-                      IconButton(
-                          onPressed: (){},
-                          icon: Icon(
-                            Icons.add_photo_alternate_outlined,
-                            color: Colors.white,
-                          )
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(15),
+                      child: homeController.messages.isEmpty
+                          ? Center(
+                        child: SizedBox(
+                          height: 100,
+                          width: 100,
+                          child:
+                          Image.asset('assets/images/gemini_icon.png'),
+                        ),
+                      )
+                          : ListView.builder(
+                        itemCount: homeController.messages.length,
+                        itemBuilder: (context, index) {
+                          var message = homeController.messages[index];
+                          if (message.isMine!) {
+                            return itemOfUserMessage(message);
+                          } else {
+                            return itemOfGeminiMessage(message,homeController);
+                          }
+                        },
                       ),
-                      IconButton(
-                          onPressed: (){},
-                          icon: Icon(
-                            Icons.keyboard_voice_sharp,
-                            color: Colors.white,
-                          )
-                      ),
-                      IconButton(
-                          onPressed: (){},
-                          icon: Icon(
-                            Icons.send_rounded,
-                            color: Colors.white,
-                          )
-                      ),
-                    ],
-                  )
-                ]
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(right: 20, left: 20),
+                    padding: const EdgeInsets.only(left: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(color: Colors.grey, width: 1.5),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        homeController.pickedImage == null
+                            ? SizedBox.shrink()
+                            : Container(
+                          margin: EdgeInsets.only(top: 15),
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            // color: Colors.blue,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.memory(
+                              Utils.base64Decode(
+                                homeController.pickedImage!
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: homeController.textController,
+                                maxLines: null,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'Message',
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                homeController.onSelectedImage();
+                              },
+                              icon: const Icon(
+                                Icons.add_photo_alternate_outlined,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            // if (homeController.textController.text
+                            //     .isEmpty) // Show icons only if text is empty
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                homeController.speechToText.isNotListening
+                                    ? homeController.startSTT()
+                                    : homeController.stopSTT();
+                              },
+                              icon: const Icon(
+                                Icons.mic,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                var text = homeController.textController.text
+                                    .toString()
+                                    .trim();
+                                homeController.onSendPressed(text);
+                              },
+                              icon: const Icon(
+                                Icons.send,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
+            );
+          },
+        )
       ),
     );
   }
