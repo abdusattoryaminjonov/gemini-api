@@ -21,6 +21,7 @@ class MessageModelAdapter extends TypeAdapter<MessageModel> {
   @override
   void write(BinaryWriter writer, MessageModel obj) {
     writer
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.isMine)
       ..writeByte(1)

@@ -2,7 +2,7 @@ import 'package:hive_flutter/adapters.dart';
 part 'message_model.g.dart';
 
 @HiveType(typeId: 0)
-class MessageModel {
+class MessageModel extends HiveObject {
   @HiveField(0)
   late bool? isMine;
 

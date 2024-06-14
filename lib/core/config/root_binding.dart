@@ -1,3 +1,4 @@
+import 'package:gemini_https/presentation/controllers/intranet_controller.dart';
 import 'package:get/get.dart';
 
 import '../../presentation/controllers/home_controller.dart';
@@ -9,5 +10,6 @@ class RootBinding implements Bindings {
   void dependencies() {
     Get.lazyPut(() => StarterController(), fenix: true);
     Get.lazyPut(() => HomeController(), fenix: true);
+    Get.lazyPut(() => IntranetController(), fenix: true);
   }
 }

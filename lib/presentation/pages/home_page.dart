@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gemini_https/data/datasources/local/nosql_service.dart';
 import 'package:get/get.dart';
+import 'package:shake/shake.dart';
 
 import '../../core/services/utils_service.dart';
 import '../controllers/home_controller.dart';
@@ -20,15 +20,26 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final homeController = Get.find<HomeController>();
 
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
-    // #todo - load message models from NoSQL
-    homeController.messages = NoSqlService.fetchNoSqlCard();
-
     homeController.initSTT();
+    homeController.uploadData();
+
+    ShakeDetector.autoStart(
+        onPhoneShake: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Shake!'),
+            ),
+          );
+        },
+      minimumShakeCount: 1,
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 3000,
+      shakeThresholdGravity: 2.7,
+    );
   }
 
   @override
@@ -76,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                           if (message.isMine!) {
                             return itemOfUserMessage(message);
                           } else {
-                            return itemOfGeminiMessage(message,homeController);
+                            return itemOfGeminiMessage(message,homeController,context);
                           }
                         },
                       ),
@@ -93,9 +104,9 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         homeController.pickedImage == null
-                            ? SizedBox.shrink()
+                            ? const SizedBox.shrink()
                             : Container(
-                          margin: EdgeInsets.only(top: 15),
+                          margin: const EdgeInsets.only(top: 15),
                           height: 100,
                           width: 100,
                           decoration: BoxDecoration(

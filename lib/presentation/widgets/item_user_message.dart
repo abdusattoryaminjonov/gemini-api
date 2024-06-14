@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gemini_https/core/services/utils_service.dart';
 
-import '../../core/constants/constants.dart';
 import '../../data/models/message_model.dart';
 
 Widget itemOfUserMessage(MessageModel message) {

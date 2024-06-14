@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 
 class NoSqlService {
   static var box = Hive.box('my_nosql');
+
   static Future<void> init() async {
     final appDocumentDirectory = await getApplicationDocumentsDirectory();
     Hive
@@ -12,9 +13,9 @@ class NoSqlService {
     await Hive.openBox("my_nosql");
   }
 
-  /// Save object without key
+  /// Save object without
   static saveNoSqlDB(MessageModel messageModel) async {
-    box.add(messageModel);
+     await box.add(messageModel);
   }
 
   static List<MessageModel> fetchNoSqlCard() {

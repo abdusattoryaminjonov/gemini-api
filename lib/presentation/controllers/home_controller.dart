@@ -1,7 +1,7 @@
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:gemini_https/data/datasources/local/nosql_service.dart';
+import 'package:gemini_https/presentation/pages/intranet_page.dart';
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -30,14 +30,23 @@ class HomeController extends GetxController {
   bool speechEnabled = false;
   FlutterTts flutterTts = FlutterTts();
 
+
+  bool isLoading = false;
+
+  uploadData(){
+    var data = NoSqlService.fetchNoSqlCard();
+    messages = data;
+    update();
+  }
+
   apiTextOnly(String text) async {
     var either = await textOnlyUseCase.call(text);
     either.fold((l) {
       LogService.d(l);
-      updateMessages(MessageModel(isMine: false, message: l));
+      updateMessages(MessageModel(isMine: false, message: l),false);
     }, (r) async {
       LogService.d(r);
-      updateMessages(MessageModel(isMine: false, message: r));
+      updateMessages(MessageModel(isMine: false, message: r),false);
     });
   }
 
@@ -45,32 +54,43 @@ class HomeController extends GetxController {
     var either = await textAndImageUseCase.call(text, base64);
     either.fold((l) {
       LogService.d(l);
-      updateMessages(MessageModel(isMine: false, message: l));
+      updateMessages(MessageModel(isMine: false, message: l),false);
     }, (r) async {
       LogService.d(r);
-      updateMessages(MessageModel(isMine: false, message: r));
+      updateMessages(MessageModel(isMine: false, message: r),false);
     });
   }
 
-  updateMessages(MessageModel messageModel) {
+  updateMessages(MessageModel messageModel,bool isLoading) {
+    this.isLoading = isLoading;
     messages.add(messageModel);
-    NoSqlService.saveNoSqlDB(messageModel);
     update();
 
-    // #todo - save MessageModel to NoSQL
+    NoSqlService.saveNoSqlDB(messageModel);
   }
+
 
   onSendPressed(String text) async {
     if (pickedImage == null) {
       apiTextOnly(text);
-      updateMessages(MessageModel(isMine: true, message: text));
+      updateMessages(MessageModel(isMine: true, message: text),true);
     } else {
       apiTextAndImage(text, pickedImage!);
       updateMessages(
-          MessageModel(isMine: true, message: text, base64: pickedImage));
+          MessageModel(isMine: true, message: text, base64: pickedImage),true);
     }
     textController.clear();
     onRemovedImage();
+  }
+
+  Future gotoIntranetPage(String url ,BuildContext context) async{
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return  IntranetPage(url: url,);
+        },
+      ),
+    );
   }
 
   onSelectedImage() async {

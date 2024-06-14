@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gemini_https/core/constants/constants.dart';
 import 'package:gemini_https/presentation/controllers/starter_controller.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:video_player/video_player.dart';
 
@@ -20,12 +22,14 @@ class _StarterPageState extends State<StarterPage> {
   @override
   void initState() {
     super.initState();
+    starterController.speakTTS(welcomingMessage);
     starterController.initVideoPlayer();
   }
 
   @override
   void dispose() {
     starterController.videoPlayerController.dispose();
+    starterController.stopTTS();
     super.dispose();
   }
 
@@ -35,15 +39,13 @@ class _StarterPageState extends State<StarterPage> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 40),
+          padding: const EdgeInsets.only(bottom: 40),
           child: Column(
             children: [
               Container(
-                child: const Image(
-                  width: 150,
-                  image: AssetImage('assets/images/gemini_logo.png'),
-                  fit: BoxFit.cover,
-                ),
+                width: 120,
+                child: Lottie.asset('assets/lotties/gemini_log.json'),
+
               ),
               Expanded(
                 child: starterController.videoPlayerController.value.isInitialized
@@ -55,11 +57,11 @@ class _StarterPageState extends State<StarterPage> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      // Navigator.pushReplacementNamed(context, HomePage.id);
-                      Navigator.push(context, PageTransition(
-                        type: PageTransitionType.fade,
-                          child: HomePage())
-                      );
+                      Navigator.pushReplacementNamed(context, HomePage.id);
+                      // Navigator.push(context, PageTransition(
+                      //   type: PageTransitionType.fade,
+                      //     child: HomePage())
+                      // );
                     },
                     child: Container(
                       padding:
