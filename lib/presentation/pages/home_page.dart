@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shake/shake.dart';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/services/utils_service.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/item_gemini_message.dart';
@@ -68,26 +70,80 @@ class _HomePageState extends State<HomePage> {
                       fit: BoxFit.cover,
                     ),
                   ),
+               Stack(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 45,
+                        child: const Image(
+                          image:
+                          AssetImage('assets/images/gemini_logo.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: (){
+                          homeController.logOutDialog(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(top: 10, right: 16),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20.0),
+                            child: CachedNetworkImage(
+                              height: 40,
+                              width: 40,
+                              imageUrl: AuthService.currentUser().photoURL!,
+                              placeholder: (context, url) => const Image(
+                                image: AssetImage(
+                                    "assets/images/ic_person.png"),
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                              ),
+                              errorWidget: (context, url, error) => const Image(
+                                image: AssetImage(
+                                    "assets/images/ic_person.png"),
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+
+                ],),
                   Expanded(
                     child: Container(
                       margin: const EdgeInsets.all(15),
                       child: homeController.messages.isEmpty
                           ? Center(
                         child: SizedBox(
-                          height: 100,
-                          width: 100,
-                          child:
-                          Image.asset('assets/images/gemini_icon.png'),
+                          width: 70,
+                          child: Image.asset(
+                              'assets/images/gemini_icon.png'),
                         ),
                       )
                           : ListView.builder(
                         itemCount: homeController.messages.length,
+                        physics: const BouncingScrollPhysics(),
                         itemBuilder: (context, index) {
-                          var message = homeController.messages[index];
+                          var message =
+                          homeController.messages[index];
                           if (message.isMine!) {
                             return itemOfUserMessage(message);
                           } else {
-                            return itemOfGeminiMessage(message,homeController,context);
+                            return itemOfGeminiMessage(message, homeController,context);
                           }
                         },
                       ),

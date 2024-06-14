@@ -1,6 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+
+import '../../core/services/auth_service.dart';
+import '../../core/services/log_service.dart';
+import '../pages/home_page.dart';
 
 class StarterController extends GetxController {
   late VideoPlayerController videoPlayerController;
@@ -11,10 +16,19 @@ class StarterController extends GetxController {
     VideoPlayerController.asset("assets/videos/gemini_video.mp4")
       ..initialize().then((_) {
         update();
+        videoPlayerController.play();
+        videoPlayerController.setLooping(true);
       });
+  }
 
-    videoPlayerController.play();
-    videoPlayerController.setLooping(true);
+  callHomePage(BuildContext context){
+    Navigator.pushReplacementNamed(context, HomePage.id);
+  }
+
+
+  callGoogleSignIn()async{
+    var result = await AuthService.signInWithGoogle();
+    LogService.i(result);
   }
 
   stopVideoPlayer(){

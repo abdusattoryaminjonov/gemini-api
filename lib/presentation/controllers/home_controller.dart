@@ -6,12 +6,15 @@ import 'package:get/get.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../../core/services/auth_service.dart';
 import '../../core/services/log_service.dart';
 import '../../core/services/utils_service.dart';
 import '../../data/models/message_model.dart';
 import '../../data/repositories/gemini_talk_repository_impl.dart';
 import '../../domain/usecases/gemini_text_and_image_usecase.dart';
 import '../../domain/usecases/gemini_text_only_usecase.dart';
+import '../pages/starter_page.dart';
+import '../widgets/generic_dialog.dart';
 
 
 class HomeController extends GetxController {
@@ -32,6 +35,26 @@ class HomeController extends GetxController {
 
 
   bool isLoading = false;
+
+  logOutDialog(BuildContext context) async {
+    bool result = await showGenericDialog(
+      context: context,
+      title: 'Sign Out',
+      content: "Do you want to sign out?",
+      optionsBuilder: () => {
+        'Cancel': false,
+        'Confirm': true,
+      },
+    );
+    if (result) {
+      await AuthService.signOutFromGoogle();
+      callStarterPage(context);
+    }
+  }
+
+  callStarterPage(BuildContext context) {
+    Navigator.pushReplacementNamed(context, StarterPage.id);
+  }
 
   uploadData(){
     var data = NoSqlService.fetchNoSqlCard();

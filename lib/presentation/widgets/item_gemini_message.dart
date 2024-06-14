@@ -28,7 +28,7 @@ Widget itemOfGeminiMessage(MessageModel message, HomeController homeController,B
                     onTap: () {
                       homeController.speakTTS(message.message!);
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.volume_up,
                       color: Colors.white70,
                     ),
@@ -36,10 +36,10 @@ Widget itemOfGeminiMessage(MessageModel message, HomeController homeController,B
                 ],
               ),
               Container(
-                  margin: EdgeInsets.only(top: 15),
+                  margin: const EdgeInsets.only(top: 15),
                   child: ParsedText(
                     text:message.message!,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white60,
                     ),
@@ -47,7 +47,7 @@ Widget itemOfGeminiMessage(MessageModel message, HomeController homeController,B
 
                       MatchText(
                         type: ParsedType.URL,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.blue,
                         ),
                         onTap: (url) {
@@ -56,7 +56,7 @@ Widget itemOfGeminiMessage(MessageModel message, HomeController homeController,B
                       MatchText(
                         type: ParsedType.CUSTOM,
                         pattern: r"\*\*(.*?)\*\*",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white70,
                           fontSize: 18,
@@ -65,7 +65,7 @@ Widget itemOfGeminiMessage(MessageModel message, HomeController homeController,B
                       MatchText(
                         type: ParsedType.CUSTOM,
                         pattern: r"```dart(.*?) \```",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.w100,
                           color: Colors.white70,
                           backgroundColor: Colors.grey,
